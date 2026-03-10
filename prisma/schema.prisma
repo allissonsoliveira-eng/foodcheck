@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sectors   Sector[]
+  tasks     Task[]
+  users     User[]
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       String   @default("EMPLOYEE")
+  companyId  String?
+  sectorId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  ledSectors Sector[] @relation("SectorLeader")
+  tasks      Task[]   @relation("TaskAssignee")
+  company    Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sector     Sector?  @relation("SectorEmployees", fields: [sectorId], references: [id])
+}
+
+model Sector {
+  id        String   @id @default(cuid())
+  name      String
+  companyId String
+  leaderId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  leader    User?    @relation("SectorLeader", fields: [leaderId], references: [id])
+  tasks     Task[]   @relation("SectorTasks")
+  employees User[]   @relation("SectorEmployees")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("PENDING")
+  priority    String   @default("MEDIA") // BAIXA, MEDIA, ALTA, URGENTE
+  type        String   @default("GERAL") // LIMPEZA, MANUTENCAO, GERAL
+  companyId   String
+  sectorId    String?
+  assigneeId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assignee    User?    @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sector      Sector?  @relation("SectorTasks", fields: [sectorId], references: [id])
+}
