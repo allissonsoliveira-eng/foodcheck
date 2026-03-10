@@ -74,7 +74,7 @@ export default async function Navigation() {
             </div>
 
             {/* Bottom Navigation (Mobile Only) */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 px-6 flex items-center justify-between z-50">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] flex items-center justify-between z-50">
                 <Link href="/dashboard" className="flex flex-col items-center gap-1 p-2 text-blue-600">
                     <Home className="w-6 h-6" />
                     <span className="text-[10px] font-bold">Início</span>

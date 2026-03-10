@@ -37,16 +37,16 @@ export default async function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-6 pt-2 pb-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="space-y-4 pt-0 pb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
 
             {/* Header Topic */}
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold tracking-widest text-slate-500 uppercase">Visão Geral Hoje</h2>
-                <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">Atualizado há 2m</span>
+            <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs font-bold tracking-widest text-slate-500 uppercase">Visão Geral Hoje</h2>
+                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold">Atualizado há 2m</span>
             </div>
 
             {/* Top Metric Cards */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2">
                 <div className="card-panel p-4 flex flex-col justify-between">
                     <p className="text-xs font-semibold text-slate-500 mb-2">Concluídas</p>
                     <div className="flex items-baseline justify-between">
