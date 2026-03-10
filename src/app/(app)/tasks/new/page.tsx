@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { createTask } from "../actions";
+import { createTask, getCompanyUsers } from "../actions";
 
 export default function NewTaskPage() {
     const router = useRouter();
@@ -19,6 +19,7 @@ export default function NewTaskPage() {
         recurrence: string;
         dueDate: string;
         dueTime: string;
+        assigneeId?: string;
     }
 
     const { register, handleSubmit, watch } = useForm<FormValues>({
@@ -30,6 +31,7 @@ export default function NewTaskPage() {
     });
 
     const [loading, setLoading] = useState(false);
+    const [users, setUsers] = useState<{ id: string, name: string | null }[]>([]);
 
     const onSubmit = async (data: any) => {
         try {
@@ -43,6 +45,10 @@ export default function NewTaskPage() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        getCompanyUsers().then(fetchedUsers => setUsers(fetchedUsers)).catch(console.error);
+    }, []);
 
     const assignmentType = watch("type");
     const priority = watch("priority");
@@ -97,18 +103,33 @@ export default function NewTaskPage() {
                     </div>
                 </div>
 
-                {/* Setor */}
-                <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Selecionar Setor</label>
-                    <select
-                        {...register("sectorId")}
-                        className="w-full px-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium shadow-sm appearance-none"
-                    >
-                        <option value="cozinha">Cozinha</option>
-                        <option value="atendimento">Atendimento</option>
-                        <option value="estoque">Estoque</option>
-                    </select>
-                </div>
+                {/* Atribuição Condicional (Setor ou Pessoa) */}
+                {assignmentType === 'sector' ? (
+                    <div>
+                        <label className="block text-sm font-bold text-slate-900 mb-2">Selecionar Setor</label>
+                        <select
+                            {...register("sectorId")}
+                            className="w-full px-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium shadow-sm appearance-none bg-no-repeat bg-[center_right_1rem] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')]"
+                        >
+                            <option value="cozinha">Cozinha</option>
+                            <option value="atendimento">Atendimento</option>
+                            <option value="estoque">Estoque</option>
+                        </select>
+                    </div>
+                ) : (
+                    <div>
+                        <label className="block text-sm font-bold text-slate-900 mb-2">Selecionar Funcionário</label>
+                        <select
+                            {...register("assigneeId")}
+                            className="w-full px-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium shadow-sm appearance-none bg-no-repeat bg-[center_right_1rem] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')]"
+                        >
+                            <option value="">Atribuir para mim mesmo</option>
+                            {users.map(u => (
+                                <option key={u.id} value={u.id}>{u.name || "Sem Nome"}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {/* Prioridade (Toggle Buttons 3 Options) */}
                 <div>

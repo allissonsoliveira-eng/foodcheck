@@ -61,25 +61,34 @@ export async function completeTask(taskId: string) {
     return { success: true };
 }
 
+export async function getCompanyUsers() {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.companyId) {
+        return [];
+    }
+
+    const users = await prisma.user.findMany({
+        where: { companyId: session.user.companyId as string },
+        select: { id: true, name: true, role: true }
+    });
+
+    return users;
+}
+
 export async function createTask(data: any) {
     const session = await getServerSession(authOptions);
     if (!session || !session.user.id) {
         throw new Error("Não autorizado");
     }
 
-    const { title, description, priority, type, sectorId } = data;
+    const { title, description, priority, type, sectorId, assigneeId } = data;
 
     if (!title) {
         throw new Error("O título é obrigatório");
     }
 
-    // Determine assignee vs sector based on the form 'type' toggle
-    const isNominal = data.type === "nominal";
-    // For prototype logic: if nominal is selected but we don't have a user selector in the UI yet, 
-    // we assign to the creator. If sector is selected, we leave assigneeId null.
-    // We also use the `priority` we added to the schema.
+    const isNominal = type === "nominal";
 
-    // Map form priority (e.g., "medium" to "MEDIA")
     const priorityMap: Record<string, string> = {
         low: "BAIXA",
         medium: "MEDIA",
@@ -95,12 +104,11 @@ export async function createTask(data: any) {
     };
 
     if (isNominal) {
-        taskData.assigneeId = session.user.id;
+        taskData.assigneeId = assigneeId || session.user.id;
     } else {
         if (sectorId) {
-            // Mock resolving sector text "cozinha" to a likely real ID or letting Prisma fail if schema requires UUID
-            // In a real app, the select box would have the literal `sector.id` values.
-            // For this prototype, if sectorId doesn't match a UUID, we won't set it unless we fix the UI.
+            // For this prototype, we're not enforcing strict UUID sector matching right now
+            // taskData.sectorId = sectorId;
         }
     }
 
